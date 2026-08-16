@@ -1,0 +1,155 @@
+.training-page {
+    padding: 30px;
+    min-height: 100vh;
+}
+
+.training-header {
+    margin-bottom: 25px;
+}
+
+.training-header h1 {
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+.training-header p {
+    color: #666;
+}
+
+.year-card {
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    background: #f5f7ff;
+    border: 1px solid #e1e5ff;
+}
+
+.year-card h2 {
+    margin-bottom: 5px;
+}
+
+.year-card p {
+    color: #666;
+}
+
+/* Categories */
+
+.training-categories {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 35px;
+}
+
+.category-card {
+    padding: 22px;
+    border-radius: 12px;
+    background: white;
+    border: 1px solid #e5e5e5;
+    transition: 0.2s;
+}
+
+.category-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+}
+
+.category-card h3 {
+    margin-bottom: 10px;
+}
+
+.category-card p {
+    color: #666;
+    line-height: 1.5;
+}
+
+/* Materials */
+
+.materials-section {
+    margin-top: 20px;
+}
+
+.materials-section h2 {
+    margin-bottom: 20px;
+}
+
+.training-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.training-card {
+    padding: 22px;
+    border-radius: 12px;
+    background: white;
+    border: 1px solid #e5e5e5;
+}
+
+.training-card h3 {
+    margin-bottom: 10px;
+}
+
+.training-card p {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.material-category {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: #eef2ff;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.training-card a {
+    display: inline-block;
+    margin-top: 10px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Empty state */
+
+.empty-training {
+    padding: 40px;
+    text-align: center;
+    border: 1px dashed #ccc;
+    border-radius: 12px;
+}
+
+.empty-training h3 {
+    margin-bottom: 10px;
+}
+
+.empty-training p {
+    color: #666;
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+
+    .training-categories,
+    .training-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+
+    .training-page {
+        padding: 20px;
+    }
+
+    .training-categories,
+    .training-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .training-header h1 {
+        font-size: 24px;
+    }
+}
