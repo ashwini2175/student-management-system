@@ -1,36 +1,76 @@
 import theme from "../../styles/theme";
 
-function StatsCard({ title, value, color }) {
+function StatsCards({ student }) {
+    const cards = [
+        {
+            title: "CGPA",
+            value: student?.cgpa ?? "N/A",
+            icon: "🎓",
+        },
+        {
+            title: "Projects",
+            value: student?.projects?.length ?? 0,
+            icon: "💻",
+        },
+        {
+            title: "Skills",
+            value: student?.skills?.length ?? 0,
+            icon: "⚡",
+        },
+        {
+            title: "Training",
+            value: student?.training?.length ?? 0,
+            icon: "🎯",
+        },
+    ];
+
     return (
         <div
             style={{
-                background: theme.colors.card,
-                color: theme.colors.text,
-                flex: "1 1 220px",
-                height: "140px",
-                width: "260px",
-                borderRadius: "15px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-                border: `1px solid ${theme.colors.border}`,
+                display: "grid",
+                gridTemplateColumns: "repeat(4, 1fr)",
+                gap: "20px",
+                marginBottom: "30px",
             }}
         >
-            <h2>{title}</h2>
+            {cards.map((card) => (
+                <div
+                    key={card.title}
+                    style={{
+                        background: theme.colors.card,
+                        padding: "30px",
+                        borderRadius: "15px",
+                        border: `1px solid ${theme.colors.border}`,
+                        boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+                    }}
+                >
+                    <div style={{ fontSize: "38px" }}>
+                        {card.icon}
+                    </div>
 
-            <h1
-                style={{
-                    fontSize: "55px",
-                    marginTop: "10px",
-                    color: color || theme.colors.primary,
-                }}
-            >
-                {value}
-            </h1>
+                    <h2
+                        style={{
+                            fontSize: "38px",
+                            margin: "10px 0",
+                            color: theme.colors.primary,
+                        }}
+                    >
+                        {card.value}
+                    </h2>
+
+                    <p
+                        style={{
+                            color: theme.colors.textLight,
+                            marginTop: "10px",
+                            fontWeight: "600",
+                        }}
+                    >
+                        {card.title}
+                    </p>
+                </div>
+            ))}
         </div>
     );
 }
 
-export default StatsCard;
+export default StatsCards;

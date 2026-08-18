@@ -1,26 +1,25 @@
-import student from "../../data/student";
 import theme from "../../styles/theme";
 
-function StatsCards() {
+function StatsCards({ student }) {
     const cards = [
         {
             title: "CGPA",
-            value: student.cgpa,
+            value: student?.cgpa ?? "N/A",
             icon: "🎓",
         },
         {
             title: "Projects",
-            value: student.projects.length,
+            value: student?.projects?.length ?? 0,
             icon: "💻",
         },
         {
             title: "Skills",
-            value: student.skills.length,
+            value: student?.skills?.length ?? 0,
             icon: "⚡",
         },
         {
             title: "Training",
-            value: "View",
+            value: student?.training?.length ?? 0,
             icon: "🎯",
         },
     ];
@@ -45,11 +44,7 @@ function StatsCards() {
                         boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
                     }}
                 >
-                    <div
-                        style={{
-                            fontSize: "38px",
-                        }}
-                    >
+                    <div style={{ fontSize: "38px" }}>
                         {card.icon}
                     </div>
 
