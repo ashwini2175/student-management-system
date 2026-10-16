@@ -1,6 +1,6 @@
 import theme from "../../styles/theme";
 
-function RecentActivity() {
+function RecentActivity({ student }) {
     const activities = [
         {
             title: "React Certificate Uploaded",

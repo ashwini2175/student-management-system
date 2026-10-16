@@ -4,24 +4,24 @@ import theme from "../../styles/theme";
 function QuickActions() {
     const navigate = useNavigate();
 
-    const buttons = [
+    const actions = [
         {
-            label: "Add Project",
-            icon: "💻",
+            title: "Add Project",
+            icon: "➕",
             path: "/projects",
         },
         {
-            label: "Upload Certificate",
-            icon: "📜",
+            title: "Upload Certificate",
+            icon: "📤",
             path: "/certificates",
         },
         {
-            label: "View Resources",
+            title: "View Resources",
             icon: "📚",
             path: "/resources",
         },
         {
-            label: "Update Profile",
+            title: "Update Profile",
             icon: "👤",
             path: "/profile",
         },
@@ -30,41 +30,54 @@ function QuickActions() {
     return (
         <div
             style={{
-                marginTop: "25px",
+                background: theme.colors.card,
+                border: `1px solid ${theme.colors.border}`,
+                borderRadius: "16px",
+                padding: "24px",
             }}
         >
             <h2
                 style={{
-                    marginBottom: "15px",
+                    marginTop: 0,
                     color: theme.colors.text,
                 }}
             >
-                ⚡ Quick Actions
+                Quick Actions
             </h2>
 
             <div
                 style={{
-                    display: "flex",
+                    display: "grid",
+                    gridTemplateColumns:
+                        "repeat(auto-fit, minmax(180px, 1fr))",
                     gap: "15px",
-                    flexWrap: "wrap",
                 }}
             >
-                {buttons.map((button) => (
+                {actions.map((action) => (
                     <button
-                        key={button.label}
-                        onClick={() => navigate(button.path)}
+                        key={action.title}
+                        onClick={() => navigate(action.path)}
                         style={{
-                            padding: "13px 20px",
+                            padding: "16px",
                             borderRadius: "10px",
                             border: `1px solid ${theme.colors.border}`,
-                            background: theme.colors.primary,
-                            color: "white",
+                            background: theme.colors.background,
+                            color: theme.colors.text,
                             cursor: "pointer",
                             fontWeight: "600",
-                            transition: "0.2s",
+                            textAlign: "left",
                         }}
                     >
-                        {button.icon} {button.label}
+                        <span
+                            style={{
+                                fontSize: "22px",
+                                marginRight: "10px",
+                            }}
+                        >
+                            {action.icon}
+                        </span>
+
+                        {action.title}
                     </button>
                 ))}
             </div>

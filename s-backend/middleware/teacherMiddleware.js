@@ -1,9 +1,11 @@
 const teacherOnly = (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({
+            message: "Authentication required. Please log in.",
+        });
+    }
 
-    console.log("USER:", req.user);
-    console.log("TEACHER:", req.teacher);
-
-    if (!req.teacher) {
+    if (req.user.role !== "Teacher") {
         return res.status(403).json({
             message: "Access denied. Teacher access required.",
         });

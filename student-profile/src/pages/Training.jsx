@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "../styles/Training.css";
 import theme from "../styles/theme";
 
@@ -8,15 +8,29 @@ function Training() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+    const token = localStorage.getItem("token");
+
+    const getYearLabel = (year) => {
+        const yearLabels = {
+            1: "FY",
+            2: "SY",
+            3: "TY",
+            4: "B.Tech / Final Year",
+        };
+
+        return yearLabels[year] || "Unknown Year";
+    };
+
     useEffect(() => {
         const fetchTraining = async () => {
             try {
-                const token = localStorage.getItem("token");
+                setLoading(true);
+                setError("");
 
                 if (!token) {
-                    setError("Student login token not found.");
-                    setLoading(false);
-                    return;
+                    throw new Error(
+                        "Student login token not found."
+                    );
                 }
 
                 const response = await fetch(
@@ -33,7 +47,8 @@ function Training() {
 
                 if (!response.ok) {
                     throw new Error(
-                        data.message || "Failed to load training materials"
+                        data.message ||
+                        "Failed to load training materials"
                     );
                 }
 
@@ -49,18 +64,7 @@ function Training() {
         };
 
         fetchTraining();
-    }, []);
-
-    const getYearLabel = (year) => {
-        const yearLabels = {
-            1: "FY",
-            2: "SY",
-            3: "TY",
-            4: "B.Tech / Final Year",
-        };
-
-        return yearLabels[year] || "Unknown Year";
-    };
+    }, [token]);
 
     if (loading) {
         return (
@@ -89,7 +93,7 @@ function Training() {
     return (
         <div className="training-page">
 
-            {/* Header */}
+            {/* HEADER */}
 
             <div className="training-header">
                 <h1 style={{ color: theme.colors.primary }}>
@@ -97,12 +101,12 @@ function Training() {
                 </h1>
 
                 <p style={{ color: theme.colors.textSecondary }}>
-                    Training materials specifically selected
+                    Access training materials selected
                     for your academic year.
                 </p>
             </div>
 
-            {/* Year */}
+            {/* YEAR */}
 
             <div
                 className="year-card"
@@ -121,7 +125,7 @@ function Training() {
                 </p>
             </div>
 
-            {/* Categories */}
+            {/* CATEGORIES */}
 
             <div className="training-categories">
 
@@ -212,7 +216,7 @@ function Training() {
 
             </div>
 
-            {/* Materials */}
+            {/* TRAINING MATERIALS */}
 
             <div className="materials-section">
 
@@ -254,14 +258,14 @@ function Training() {
                                     border: `1px solid ${theme.colors.border}`,
                                 }}
                             >
-
                                 <h3 style={{ color: theme.colors.text }}>
                                     {material.title}
                                 </h3>
 
                                 <p
                                     style={{
-                                        color: theme.colors.textSecondary,
+                                        color:
+                                            theme.colors.textSecondary,
                                     }}
                                 >
                                     {material.description}
@@ -276,10 +280,12 @@ function Training() {
                                 {material.type && (
                                     <p
                                         style={{
-                                            color: theme.colors.textSecondary,
+                                            color:
+                                                theme.colors.textSecondary,
                                         }}
                                     >
-                                        Type: {material.type}
+                                        <strong>Type:</strong>{" "}
+                                        {material.type}
                                     </p>
                                 )}
 
@@ -292,7 +298,6 @@ function Training() {
                                         Open Material →
                                     </a>
                                 )}
-
                             </div>
 
                         ))}

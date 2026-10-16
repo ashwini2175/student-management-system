@@ -2,10 +2,9 @@ import { NavLink } from "react-router-dom";
 import {
     FaHome,
     FaProjectDiagram,
-    FaBook,
-    FaBell,
-    FaCog,
     FaBriefcase,
+    FaBook,
+    FaCertificate,
 } from "react-icons/fa";
 
 import theme from "../../styles/theme.js";
@@ -19,8 +18,10 @@ function Sidebar() {
         marginBottom: "10px",
         borderRadius: "10px",
         textDecoration: "none",
-        color: isActive ? "theme.colors.card" : theme.colors.text,
-        background: isActive ? theme.colors.primary : "transparent",
+        color: isActive ? theme.colors.card : theme.colors.text,
+        background: isActive
+            ? theme.colors.primary
+            : "transparent",
         fontWeight: isActive ? "600" : "500",
         transition: "0.3s",
     });
@@ -46,37 +47,53 @@ function Sidebar() {
             </h2>
 
             <nav>
-                <NavLink to="/" style={menuStyle}>
+
+                {/* Dashboard */}
+                <NavLink
+                    to="/"
+                    style={menuStyle}
+                    end
+                >
                     <FaHome />
                     Dashboard
                 </NavLink>
 
-                <NavLink to="/projects" style={menuStyle}>
+                {/* Projects */}
+                <NavLink
+                    to="/projects"
+                    style={menuStyle}
+                >
                     <FaProjectDiagram />
                     Projects
                 </NavLink>
 
-
-
-                <NavLink to="/career" style={menuStyle}>
+                {/* Career */}
+                <NavLink
+                    to="/career"
+                    style={menuStyle}
+                >
                     <FaBriefcase />
                     Career
                 </NavLink>
 
-                <NavLink to="/notifications" style={menuStyle}>
-                    <FaBell />
-                    Notifications
-                </NavLink>
-
-                <NavLink to="/settings" style={menuStyle}>
-                    <FaCog />
-                    Settings
-                </NavLink>
-
-                <NavLink to="/training" style={menuStyle}>
+                {/* Training */}
+                <NavLink
+                    to="/training"
+                    style={menuStyle}
+                >
                     <FaBook />
                     Training
                 </NavLink>
+
+                {/* Certificates */}
+                <NavLink
+                    to="/certificates"
+                    style={menuStyle}
+                >
+                    <FaCertificate />
+                    Certificates
+                </NavLink>
+
             </nav>
         </aside>
     );

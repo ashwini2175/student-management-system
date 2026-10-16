@@ -4,21 +4,29 @@ const guidanceSchema = new mongoose.Schema(
     {
         studentPRN: {
             type: String,
-            required: true
+            required: true,
         },
 
-        teacherName: {
+        title: {
             type: String,
-            required: true
+            required: true,
         },
 
         message: {
             type: String,
-            required: true
-        }
-    },
-    {
-        timestamps: true
-    });
+            required: true,
+        },
+
+        category: {
+            type: String,
+            default: "Career",
+        },
+
+        createdAt: {
+            type: Date,
+            default: Date.now,
+        },
+    }
+);
 
 module.exports = mongoose.model("Guidance", guidanceSchema);

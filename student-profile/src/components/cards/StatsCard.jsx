@@ -9,7 +9,7 @@ function StatsCards({ student }) {
         },
         {
             title: "Projects",
-            value: student?.projects?.length ?? 0,
+            value: student?.projectCount ?? 0,
             icon: "💻",
         },
         {
@@ -18,8 +18,8 @@ function StatsCards({ student }) {
             icon: "⚡",
         },
         {
-            title: "Training",
-            value: student?.training?.length ?? 0,
+            title: "Internships",
+            value: student?.internshipCount ?? 0,
             icon: "🎯",
         },
     ];

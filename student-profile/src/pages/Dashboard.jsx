@@ -52,7 +52,7 @@ function Dashboard() {
                 }
 
                 setStudent(data);
-
+                console.log("STUDENT FROM BACKEND:", data);
                 // Keep localStorage student data updated
                 localStorage.setItem(
                     "student",

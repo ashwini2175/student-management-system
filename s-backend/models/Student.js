@@ -21,13 +21,18 @@ const studentSchema = new mongoose.Schema(
             trim: true,
         },
 
+
+        profilePhoto: {
+            type: String,
+            default: "",
+        },
+
         department: {
             type: String,
             required: true,
             trim: true,
         },
 
-        // 1 = FY, 2 = SY, 3 = TY, 4 = B.Tech / Final Year
         year: {
             type: Number,
             required: true,
@@ -95,6 +100,92 @@ const studentSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+
+        // =========================
+        // PROJECTS
+        // =========================
+
+        projects: [
+            {
+                title: {
+                    type: String,
+                    required: true,
+                },
+
+                description: {
+                    type: String,
+                    default: "",
+                },
+
+                githubLink: {
+                    type: String,
+                    trim: true,
+                    default: "",
+                },
+
+                technologies: {
+                    type: [String],
+                    default: [],
+                },
+
+                status: {
+                    type: String,
+                    default: "Ongoing",
+                },
+
+                features: {
+                    type: [String],
+                    default: [],
+                },
+
+                challenges: {
+                    type: [String],
+                    default: [],
+                },
+
+                futureScope: {
+                    type: [String],
+                    default: [],
+                },
+            },
+        ],
+
+        // =========================
+        // CERTIFICATES
+        // =========================
+
+        certificates: [
+            {
+                title: {
+                    type: String,
+                    required: true,
+                },
+
+                issuer: {
+                    type: String,
+                    required: true,
+                },
+
+                year: {
+                    type: Number,
+                },
+
+                credentialUrl: {
+                    type: String,
+                    default: "",
+                },
+
+                fileName: {
+                    type: String,
+                    default: "",
+                },
+
+                fileUrl: {
+                    type: String,
+                    default: "",
+                },
+            },
+        ],
     },
     {
         timestamps: true,

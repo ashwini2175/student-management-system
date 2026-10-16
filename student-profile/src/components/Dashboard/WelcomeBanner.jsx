@@ -1,7 +1,6 @@
-import student from "../../data/student";
 import theme from "../../styles/theme";
 
-function WelcomeBanner() {
+function WelcomeBanner({ student }) {
     return (
         <div
             style={{
@@ -18,7 +17,7 @@ function WelcomeBanner() {
                     color: theme.colors.text,
                 }}
             >
-                👋 Welcome Back, {student.name}
+                👋 Welcome Back, {student?.name || "Student"}
             </h1>
 
             <p
@@ -40,7 +39,9 @@ function WelcomeBanner() {
             >
                 <span>🟢 Online</span>
 
-                <span>{student.year}</span>
+                <span>{student?.year || "Student"}</span>
+
+                <span>{student?.department || "CSE"}</span>
 
                 <span>{new Date().toLocaleDateString()}</span>
             </div>

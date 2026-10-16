@@ -1,56 +1,45 @@
 const jwt = require("jsonwebtoken");
 
 const verifyToken = (req, res, next) => {
-    console.log("AUTH HEADER:", req.headers.authorization);
-
     const authHeader = req.headers.authorization;
 
-    if (!authHeader) {
+    // Expected format: Bearer <token>
+    const parts = authHeader?.trim().split(/\s+/);
+
+    if (
+        !parts ||
+        parts.length !== 2 ||
+        parts[0].toLowerCase() !== "bearer"
+    ) {
         return res.status(401).json({
-            message: "Access Denied. No Token Provided.",
+            message: "A valid Bearer token is required.",
         });
     }
 
-    const token = authHeader.split(" ")[1];
-
-    console.log("TOKEN EXISTS:", !!token);
-
-    if (!token) {
-        return res.status(401).json({
-            message: "Access Denied. Invalid Token Format.",
-        });
-    }
+    let verified;
 
     try {
-        const verified = jwt.verify(
-            token,
+        verified = jwt.verify(
+            parts[1],
             process.env.JWT_SECRET
         );
-
-        console.log("VERIFIED JWT:", verified);
-
-        req.user = verified;
-
-        if (verified.role === "Student") {
-            req.student = verified;
-        }
-
-        if (verified.role === "Teacher") {
-            req.teacher = verified;
-        }
-
-        console.log("REQ.USER:", req.user);
-        console.log("REQ.TEACHER:", req.teacher);
-
-        next();
-
-    } catch (error) {
-        console.log("JWT ERROR:", error.message);
-
+    } catch {
         return res.status(401).json({
             message: "Invalid or Expired Token",
         });
     }
+
+    req.user = verified;
+
+    if (verified.role === "Student") {
+        req.student = verified;
+    }
+
+    if (verified.role === "Teacher") {
+        req.teacher = verified;
+    }
+
+    next();
 };
 
 module.exports = verifyToken;

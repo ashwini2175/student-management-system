@@ -1,108 +1,113 @@
-import theme from "../styles/theme";
+import React, { useEffect, useState } from "react";
 
-function Notifications() {
-    const notifications = [
-        {
-            id: 1,
-            title: "Placement Drive",
-            message: "TCS campus recruitment drive is scheduled soon. Check the Career section for details.",
-            time: "Today",
-            type: "💼",
-        },
-        {
-            id: 2,
-            title: "Training Material Available",
-            message: "New aptitude and coding preparation material is available for your academic year.",
-            time: "2 hours ago",
-            type: "📚",
-        },
-        {
-            id: 3,
-            title: "Interview Preparation",
-            message: "Interview preparation sessions have been updated. Practice technical and HR questions.",
-            time: "Yesterday",
-            type: "🎯",
-        },
-        {
-            id: 4,
-            title: "Resume Preparation",
-            message: "Resume and placement preparation guidance is now available for students.",
-            time: "Yesterday",
-            type: "📄",
-        },
-    ];
+const Notifications = () => {
+    const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const token = localStorage.getItem("token");
+
+                // 1. Get logged-in student profile
+                const profileResponse = await fetch(
+                    "http://localhost:5000/student/profile",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                if (!profileResponse.ok) {
+                    throw new Error("Failed to fetch student profile");
+                }
+
+                const student = await profileResponse.json();
+
+                // 2. Use logged-in student's PRN
+                const notificationResponse = await fetch(
+                    `http://localhost:5000/notification/${student.prn}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                if (!notificationResponse.ok) {
+                    throw new Error("Failed to fetch notifications");
+                }
+
+                const data = await notificationResponse.json();
+
+                setNotifications(data);
+            } catch (err) {
+                console.error("Notification Error:", err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchNotifications();
+    }, []);
+
+    if (loading) {
+        return <p>Loading notifications...</p>;
+    }
+
+    if (error) {
+        return <p>{error}</p>;
+    }
 
     return (
-        <div>
-            <h1
-                style={{
-                    color: theme.colors.primary,
-                    marginBottom: "8px",
-                }}
-            >
-                🔔 Notifications
-            </h1>
+        <div style={{ padding: "30px" }}>
+            <h1>Notifications</h1>
 
-            <p
-                style={{
-                    color: "#cbd5e1",
-                    marginBottom: "25px",
-                }}
-            >
-                Stay updated with training and placement activities.
-            </p>
-
-            {/* notification cards below */}
-
-            <div
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "15px",
-                }}
-            >
-                {notifications.map((notification) => (
+            {notifications.length === 0 ? (
+                <p>No notifications available.</p>
+            ) : (
+                notifications.map((notification) => (
                     <div
-                        key={notification.id}
+                        key={notification._id}
                         style={{
-                            background: theme.colors.card,
-                            padding: "20px",
-                            borderRadius: "12px",
-                            border: `1px solid ${theme.colors.border}`,
-                            boxShadow: theme.colors.shadow,
+                            background: "#fff",
+                            padding: "18px",
+                            marginBottom: "15px",
+                            borderRadius: "10px",
+                            position: "relative",
                         }}
                     >
-                        <h3
-                            style={{
-                                margin: 0,
-                                color: theme.colors.text,
-                            }}
-                        >
-                            {notification.type} {notification.title}
-                        </h3>
+                        {!notification.isRead && (
+                            <span
+                                style={{
+                                    position: "absolute",
+                                    right: "15px",
+                                    top: "15px",
+                                    width: "10px",
+                                    height: "10px",
+                                    background: "red",
+                                    borderRadius: "50%",
+                                }}
+                            />
+                        )}
 
-                        <p
-                            style={{
-                                color: theme.colors.textSecondary,
-                                marginTop: "8px",
-                                lineHeight: "1.6",
-                            }}
-                        >
-                            {notification.message}
-                        </p>
+                        <h3>{notification.title}</h3>
 
-                        <small
-                            style={{
-                                color: theme.colors.textSecondary,
-                            }}
-                        >
-                            {notification.time}
+                        <p>{notification.message}</p>
+
+                        <small>
+                            {notification.createdAt
+                                ? new Date(notification.createdAt).toLocaleString()
+                                : ""}
                         </small>
                     </div>
-                ))}
-            </div>
+                ))
+            )}
         </div>
     );
-}
+};
 
 export default Notifications;
