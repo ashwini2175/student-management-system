@@ -1,56 +1,9 @@
-import theme from "../styles/theme";
-
-function Settings() {
-    return (
-        <div>
-            <h1 style={{ color: theme.colors.text }}>
-                ⚙️ Settings
-            </h1>
-
-            <p style={{ color: theme.colors.textSecondary }}>
-                Manage your account settings.
-            </p>
-
-            <div
-                style={{
-                    marginTop: "30px",
-                    background: theme.colors.surface,
-                    padding: "25px",
-                    borderRadius: "15px",
-                    border: `1px solid ${theme.colors.border}`,
-                }}
-            >
-                <h2 style={{ color: theme.colors.text }}>
-                    Personal Information
-                </h2>
-
-                <div style={{ marginTop: "20px" }}>
-                    <label>Name</label>
-                    <input
-                        type="text"
-                        defaultValue="Ashwini Vasave"
-                        style={{
-                            width: "100%",
-                            padding: "10px",
-                            marginTop: "5px",
-                            marginBottom: "15px",
-                        }}
-                    />
-
-                    <label>Email</label>
-                    <input
-                        type="email"
-                        defaultValue="ashwini@example.com"
-                        style={{
-                            width: "100%",
-                            padding: "10px",
-                            marginTop: "5px",
-                        }}
-                    />
-                </div>
-            </div>
-        </div>
-    );
+import { useSession } from "../state";
+import { api } from "../api";
+import { Form, Heading, field } from "../components";
+export default function Settings() {
+  const { logout } = useSession();
+  return <><Heading title="Account settings" subtitle="Change your password. You will be signed out after saving." />
+    <Form fields={[field("currentPassword", "Current password", "password"), field("newPassword", "New password", "password", { hint: "At least 8 characters; maximum 72 UTF-8 bytes." })]} submit={v => api("/auth/password", { method: "PUT", body: v })} onSuccess={logout} label="Update password & sign out" />
+  </>;
 }
-
-export default Settings;

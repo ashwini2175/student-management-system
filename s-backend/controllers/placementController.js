@@ -1,159 +1,84 @@
 const Placement = require("../models/Placement");
 const Student = require("../models/Student");
 const Notification = require("../models/Notification");
-
-// ==========================================
-// CREATE PLACEMENT DRIVE
-// POST /placement
-// ==========================================
-
-const createPlacement = async (req, res) => {
-    try {
-        const {
-            company,
-            role,
-            eligibilityCGPA,
-            package: packageAmount,
-            driveDate,
-            time,
-            location,
-            description,
-        } = req.body;
-
-        // -----------------------------
-        // Validate required fields
-        // -----------------------------
-
-        if (
-            !company ||
-            !role ||
-            eligibilityCGPA === undefined ||
-            !packageAmount ||
-            !driveDate ||
-            !time ||
-            !location
-        ) {
-            return res.status(400).json({
-                message: "Please provide all required placement details",
-            });
-        }
-
-        // -----------------------------
-        // Create placement
-        // -----------------------------
-
-        const placement = new Placement({
-            company,
-            role,
-            eligibilityCGPA,
-            package: packageAmount,
-            driveDate,
-            time,
-            location,
-            description,
-        });
-
-        await placement.save();
-
-        // -----------------------------
-        // Find eligible students
-        // -----------------------------
-
-        const eligibleStudents = await Student.find({
-            cgpa: {
-                $gte: Number(eligibilityCGPA),
+const { wrap, text, number, fail } = require("../utils/http");
+const { publish } = require("../utils/events");
+const input = (b) => {
+  const driveDate = text(b.driveDate, "Date");
+  const time = text(b.time, "Time");
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(driveDate) ||
+    Number.isNaN(Date.parse(driveDate)) ||
+    new Date(driveDate).toISOString().slice(0, 10) !== driveDate
+  )
+    throw fail(400, "Enter a valid date.");
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time))
+    throw fail(400, "Enter a valid time.");
+  return {
+    company: text(b.company, "Company"),
+    role: text(b.role, "Role"),
+    eligibilityCGPA: number(b.eligibilityCGPA, "CGPA", 0, 10),
+    package: text(b.package, "Package"),
+    driveDate,
+    time,
+    location: text(b.location, "Location"),
+    description:
+      typeof b.description === "string"
+        ? b.description.trim().slice(0, 5000)
+        : "",
+  };
+};
+exports.notify = async (p) => {
+  const students = await Student.find({
+    cgpa: { $gte: p.eligibilityCGPA },
+  }).select("prn");
+  if (students.length)
+    await Notification.bulkWrite(
+      students.map((s) => ({
+        updateOne: {
+          filter: { sourceKey: `placement:${p._id}`, studentPRN: s.prn },
+          update: {
+            $setOnInsert: {
+              title: `${p.company} placement drive`,
+              message: `${p.role} | CGPA ${p.eligibilityCGPA}+ | ${p.package} | ${p.driveDate} ${p.time} | ${p.location}`,
+              isRead: false,
             },
-        });
-
-        console.log(
-            "Eligible Students:",
-            eligibleStudents.length
-        );
-
-        // -----------------------------
-        // Create notifications
-        // -----------------------------
-
-        const notifications = eligibleStudents.map(
-            (student) => ({
-                studentPRN: student.prn,
-
-                title: `🏢 ${company} Placement Drive`,
-
-                message:
-                    `${company} is hiring for ${role}. ` +
-                    `Eligibility: CGPA ${eligibilityCGPA}+. ` +
-                    `Package: ${packageAmount}. ` +
-                    `Date: ${driveDate}. ` +
-                    `Time: ${time}. ` +
-                    `Location: ${location}.`,
-
-                isRead: false,
-            })
-        );
-
-        if (notifications.length > 0) {
-            await Notification.insertMany(
-                notifications
-            );
-        }
-
-        // -----------------------------
-        // Response
-        // -----------------------------
-
-        res.status(201).json({
-            message:
-                "Placement drive created successfully",
-
-            placement,
-
-            eligibleStudents:
-                eligibleStudents.length,
-
-            notificationsSent:
-                notifications.length,
-        });
-
-    } catch (error) {
-        console.error(
-            "CREATE PLACEMENT ERROR:",
-            error
-        );
-
-        res.status(500).json({
-            message: error.message,
-        });
-    }
+          },
+          upsert: true,
+        },
+      })),
+    );
+  publish("placements");
+  return students.length;
 };
-
-
-// ==========================================
-// GET ALL PLACEMENT DRIVES
-// GET /placement
-// ==========================================
-
-const getAllPlacements = async (req, res) => {
-    try {
-        const placements = await Placement.find()
-            .sort({ createdAt: -1 });
-
-        res.status(200).json(placements);
-
-    } catch (error) {
-        console.error(
-            "GET PLACEMENTS ERROR:",
-            error
-        );
-
-        res.status(500).json({
-            message: error.message,
-        });
-    }
-};
-
-
-module.exports = {
-    createPlacement,
-    getAllPlacements,
-};
+exports.createPlacement = wrap(async (req, res) => {
+  const p = await Placement.create({
+    ...input(req.body),
+    createdBy: req.user.id,
+  });
+  let notificationsSent = 0,
+    warning;
+  try {
+    notificationsSent = await exports.notify(p);
+  } catch {
+    warning =
+      "Drive saved, but notifications failed. Use Retry notifications; do not recreate the drive.";
+    publish("placements");
+  }
+  res.status(201).json({ placement: p, notificationsSent, warning });
+});
+exports.retryNotifications = wrap(async (req, res) => {
+  const p = await Placement.findById(req.params.id);
+  if (!p) throw fail(404, "Drive not found.");
+  res.json({ notificationsSent: await exports.notify(p) });
+});
+exports.getAllPlacements = wrap(async (req, res) =>
+  res.json(await Placement.find().sort({ driveDate: 1, time: 1 })),
+);
+exports.deletePlacement = wrap(async (req, res) => {
+  const p = await Placement.findByIdAndDelete(req.params.id);
+  if (!p) throw fail(404, "Drive not found.");
+  await Notification.deleteMany({ sourceKey: `placement:${p._id}` });
+  publish("placements");
+  res.json({ message: "Drive deleted." });
+});

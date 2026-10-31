@@ -1,109 +1,146 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-import WelcomeBanner from "../components/Dashboard/WelcomeBanner";
-import StatsCards from "../components/Dashboard/StatsCards";
-import PerformanceCard from "../components/Dashboard/PerformanceCard";
-import RecentActivity from "../components/Dashboard/RecentActivity";
-import QuickActions from "../components/Dashboard/QuickActions";
-
-function Dashboard() {
-    const [student, setStudent] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const navigate = useNavigate();
-    useEffect(() => {
-        const fetchStudentProfile = async () => {
-            try {
-                const token = localStorage.getItem("token");
-
-                if (!token) {
-                    navigate("/student-login");
-                    return;
+import { Link } from "react-router-dom";
+import { useSession, useQuery } from "../state";
+import { Heading, Metric, Status, Empty } from "../components";
+import { date, today } from "../api";
+export default function Dashboard() {
+  const { session } = useSession();
+  const teacher = session.role === "Teacher";
+  const q = useQuery(teacher ? "/student" : "/student/profile");
+  const placements = useQuery("/placement");
+  const upcoming = (placements.data || []).filter(
+    (p) => p.driveDate >= today(),
+  );
+  return (
+    <>
+      <Heading
+        title={`Welcome, ${session.account.name.split(" ")[0]}`}
+        subtitle={
+          teacher
+            ? "A clear view of student progress and opportunities."
+            : "Your progress, opportunities and next steps in one place."
+        }
+      />
+      <section className="dashboard-banner">
+        <div><span className="banner-kicker">ONE STEP FORWARD, EVERY DAY</span><h2>{teacher ? "Help your students find their next opportunity." : "Build your skills. Shape your next chapter."}</h2><p>{teacher ? "Review progress, share guidance and bring opportunities to your classroom." : "Keep your portfolio up to date and explore guidance from your teachers."}</p></div>
+        <Link className="banner-button" to={teacher ? "/students" : "/profile"}>{teacher ? "Explore students" : "Update my profile"} →</Link>
+      </section>
+      <Status query={q} />
+      {q.data && (
+        <div className="metrics">
+          {teacher ? (
+            <>
+              <Metric label="Total students" value={q.data.length} />
+              <Metric
+                label="Placement ready"
+                value={
+                  q.data.filter((s) => s.placementStatus === "Placement Ready")
+                    .length
                 }
-
-                const response = await fetch(
-                    "http://localhost:5000/student/profile",
-                    {
-                        method: "GET",
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    if (
-                        response.status === 401 ||
-                        data.message === "Invalid or Expired Token"
-                    ) {
-                        localStorage.removeItem("token");
-                        localStorage.removeItem("student");
-
-                        navigate("/student-login");
-                        return;
-                    }
-
-                    throw new Error(
-                        data.message || "Failed to load student profile"
-                    );
+              />
+              <Metric
+                label="Needs guidance"
+                value={
+                  q.data.filter((s) => s.placementStatus !== "Placement Ready")
+                    .length
                 }
-
-                setStudent(data);
-                console.log("STUDENT FROM BACKEND:", data);
-                // Keep localStorage student data updated
-                localStorage.setItem(
-                    "student",
-                    JSON.stringify(data)
-                );
-
-            } catch (error) {
-                console.error("Dashboard Error:", error);
-                setError(error.message);
-            } finally {
-                setLoading(false);
+              />
+            </>
+          ) : (
+            <>
+              <Metric
+                label="Readiness score / 100"
+                value={q.data.placementScore}
+              />
+              <Metric label="Projects" value={q.data.projects.length} />
+              <Metric label="Certificates" value={q.data.certificates.length} />
+            </>
+          )}
+          <Metric
+            label="Upcoming drives"
+            value={
+              placements.loading
+                ? "…"
+                : placements.error
+                  ? "—"
+                  : upcoming.length
             }
-        };
-
-        fetchStudentProfile();
-    }, []);
-
-    if (loading) {
-        return (
-            <div style={{ padding: "30px" }}>
-                <h2>Loading Dashboard...</h2>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div style={{ padding: "30px" }}>
-                <h2>Unable to load dashboard</h2>
-                <p>{error}</p>
-            </div>
-        );
-    }
-
-    return (
-        <div
-            style={{
-                padding: "30px",
-            }}
-        >
-            <WelcomeBanner student={student} />
-
-            <StatsCards student={student} />
-
-            <PerformanceCard student={student} />
-
-            <RecentActivity student={student} />
-
-            <QuickActions />
+          />
         </div>
-    );
+      )}
+      <section className="section-title">
+        <h2>Your workspace</h2>
+      </section>
+      <div className="grid">
+        {(teacher
+          ? [
+              [
+                "students",
+                "Student directory",
+                "Search profiles and update assessment scores.",
+              ],
+              [
+                "guidance",
+                "Send guidance",
+                "Give a student a practical next step.",
+              ],
+              [
+                "placements",
+                "Placement drives",
+                "Publish an opportunity and notify eligible students.",
+              ],
+              [
+                "training",
+                "Learning materials",
+                "Share year-specific preparation resources.",
+              ],
+            ]
+          : [
+              [
+                "profile",
+                "Your profile",
+                "Keep your skills, resume and academic details current.",
+              ],
+              ["projects", "Your projects", "Show what you have built."],
+              [
+                "career",
+                "Career & guidance",
+                "Explore drives and your teacher’s guidance.",
+              ],
+              [
+                "training",
+                "Learning materials",
+                "Preparation selected for your year.",
+              ],
+            ]
+        ).map(([path, title, desc]) => (
+          <Link className="card action-card" key={path} to={"/" + path}>
+            <h3>
+              {title} <span>↗</span>
+            </h3>
+            <p className="muted">{desc}</p>
+          </Link>
+        ))}
+      </div>
+      <section className="section-title">
+        <h2>Upcoming opportunities</h2>
+        <Link to={teacher ? "/placements" : "/career"}>View all →</Link>
+      </section>
+      <Status query={placements} />
+      {!placements.loading && !placements.error && !upcoming.length && (
+        <Empty>No upcoming drives yet.</Empty>
+      )}
+      <div className="grid">
+        {upcoming.slice(0, 4).map((p) => (
+          <article className="card" key={p._id}>
+            <span className="badge">{date(p.driveDate)}</span>
+            <h3>{p.company}</h3>
+            <p>{p.role}</p>
+            <p className="muted">
+              CGPA {p.eligibilityCGPA}+ · {p.package} · {p.location}
+            </p>
+          </article>
+        ))}
+      </div>
+    </>
+  );
 }
-
-export default Dashboard;

@@ -1,31 +1,11 @@
-const calculatePlacementScore = (student) => {
-
-    let score = 0;
-
-    // CGPA (25 Marks)
-    score += (student.cgpa / 10) * 25;
-
-    // Skills (20 Marks)
-    score += Math.min(student.skills.length * 4, 20);
-
-    // Projects (15 Marks)
-    score += Math.min(student.projectCount * 5, 15);
-
-    // Internships (15 Marks)
-    score += Math.min(student.internshipCount * 7.5, 15);
-
-    // Resume (10 Marks)
-    if (student.resumeUploaded) {
-        score += 10;
-    }
-
-    // Aptitude (10 Marks)
-    score += (student.aptitudeScore / 100) * 10;
-
-    // Communication (5 Marks)
-    score += (student.communicationScore / 100) * 5;
-
-    return Math.round(score);
-};
-
-module.exports = calculatePlacementScore;
+const clamp = (v, max) => Math.min(max, Math.max(0, Number(v) || 0));
+module.exports = (s) =>
+  Math.round(
+    clamp(s.cgpa, 10) * 2.5 +
+      Math.min((s.skills || []).length * 4, 20) +
+      Math.min((s.projects || []).length * 5, 15) +
+      clamp(s.internshipCount, 2) * 7.5 +
+      (s.resumeUploaded ? 10 : 0) +
+      clamp(s.aptitudeScore, 100) * 0.1 +
+      clamp(s.communicationScore, 100) * 0.05,
+  );
