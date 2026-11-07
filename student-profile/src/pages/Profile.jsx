@@ -1,3 +1,4 @@
+import {parseSkills} from "../utils/parseSkills";
 import { useEffect, useState } from "react";
 import { api, API } from "../api";
 import { useQuery, useSession } from "../state";
@@ -73,7 +74,7 @@ export default function Profile() {
               field("department", "Department"),
               field("year", "Year", "select", { options: [1, 2, 3, 4] }),
               field("cgpa", "CGPA", "number", { min: 0, max: 10, step: 0.01 }),
-              field("skills", "Skills (comma separated)", "text", {
+              field("skills", "Skills (one per line or comma separated)", "textarea", {
                 required: false,
               }),
               field("interestDomain", "Interest domain", "text", {
@@ -89,10 +90,7 @@ export default function Profile() {
                 method: "PUT",
                 body: {
                   ...v,
-                  skills: v.skills
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter(Boolean),
+                  skills: parseSkills(v.skills || ""),
                 },
               })
             }

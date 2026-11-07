@@ -1,3 +1,4 @@
+const {parseSkills}=require("../utils/parseSkills");
 const Student = require("../models/Student");
 const { wrap, text, number, url, fail, safe } = require("../utils/http");
 const { email } = require("./authController");
@@ -28,9 +29,7 @@ const profileInput = (b) => {
         if (key !== "cgpa" && !Number.isInteger(out[key]))
           throw fail(400, `${key} must be an integer.`);
       } else if (key === "skills") {
-        if (!Array.isArray(b.skills) || b.skills.length > 30)
-          throw fail(400, "Provide up to 30 skills.");
-        out.skills = [...new Set(b.skills.map((s) => text(s, "Skill", 60)))];
+        try { out.skills = parseSkills(b.skills); } catch(e) { throw fail(400,e.message); }
       } else
         out[key] =
           key === "interestDomain" && b[key] === "" ? "" : text(b[key], key);

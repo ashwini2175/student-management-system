@@ -1,3 +1,4 @@
+import CareerSuggestions from "./CareerSuggestions";
 import { useQuery, useSession } from "../state";
 import { Heading, Status, Empty, Metric } from "../components";
 import { DriveList } from "./Placements";
@@ -18,6 +19,7 @@ export default function Career() {
       <Status query={profile} />
       {s && (
         <>
+          <CareerSuggestions skills={s.skills} />
           <div className="metrics">
             <Metric label="Readiness score / 100" value={s.placementScore} />
             <Metric label="Aptitude / 100" value={s.aptitudeScore} />

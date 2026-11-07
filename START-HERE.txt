@@ -1,0 +1,20 @@
+PLACEMENT PORTAL - COMPLETE SOURCE WITHOUT TEST/CAMERA MODULE
+
+Extract this folder beside your old placement-portal folder. Do not merge it into the old folder.
+1. Stop the old frontend and backend terminals with Ctrl+C.
+2. Copy your old s-backend/.env to this folder's s-backend/.env. Keep credentials private.
+3. Copy old s-backend/uploads into this folder's s-backend/uploads if you want existing uploaded documents/photos to remain available.
+4. If you use a custom frontend .env, copy that too after checking its API URL.
+5. Terminal 1: cd s-backend, npm ci, npm start (each command separately).
+6. Terminal 2: cd student-profile, npm ci, npm run dev (each separately).
+7. Open http://localhost:5173/dashboard. Use your existing login.
+
+Keep the same MONGO_URI to use the existing database. No migrations, seed or password reset script required. Do not delete your old folder until this works. Your existing database assessment records are untouched but this application provides no access to them.
+
+Included: JWT login, student/teacher dashboards, profile/skills cleanup, project/certificate flows, placements, guidance, notifications, materials, rule-based career suggestions, password recovery code.
+Removed: My assessments navigation, timed tests, scheduling, camera monitoring, assessment API/model/question bank.
+Teacher-entered aptitude/communication fields and the original readiness formula remain. Final learning-assessment documentation is a study guide, not an in-app test module.
+
+Known pending work: revised readiness weighting, conversational AI, deployment/security audit, real database end-to-end verification. Password-reset email link must use the running frontend origin; set RESET_ORIGIN accordingly, and open localhost links on the same laptop. No guarantee of email delivery is made by this package.
+
+Validation: 7 backend unit/controller tests passed (reset DB calls mocked); frontend lint/build passed. No real MongoDB/Gmail/browser integration test in this packaging run.
